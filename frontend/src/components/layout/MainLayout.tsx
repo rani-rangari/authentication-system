@@ -1,15 +1,15 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom'; // From react-router-dom
+import { Outlet } from 'react-router-dom';
 import Navbar from '../common/Navbar';
+import Footer from '../common/Footer';
 
-
-const MainLayout: React.FC = () => {
+const MainLayout = () => {
   return (
-    <div className="app-container">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main>
-        <Outlet /> {/* This is where your Home, Login, or Signup pages render */}
+      <main className="grow">
+        <Outlet />
       </main>
+      <Footer />
     </div>
   );
 };

@@ -52,7 +52,6 @@ const HomePage = () => {
   );
 };
 
-// Simple reusable helper component
 const FeatureCard = ({ icon, title, description }: { icon: any, title: string, description: string }) => (
   <div className="p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
     <div className="flex justify-center mb-4">{icon}</div>
