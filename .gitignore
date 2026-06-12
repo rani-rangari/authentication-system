@@ -1,0 +1,20 @@
+# --- Sensitive Data ---
+.env
+.env.*
+*.secret
+*.key
+
+# --- Dependencies ---
+node_modules/
+
+# --- Build Output ---
+dist/
+build/
+out/
+target/
+
+# --- IDE & OS Files ---
+.vscode/
+.idea/
+.DS_Store
+*.log
