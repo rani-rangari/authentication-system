@@ -18,17 +18,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<{ name: string } | null>(null);
 
   const login = async (data: any) => {
-    const res = await authService.login(data);
-    localStorage.setItem('token', res.token);
-    setUser({ name: res.fullName });
-    setIsAuthenticated(true);
+setLoading(true); 
+    try {
+      const res = await authService.login(data);
+      localStorage.setItem('token', res.token);
+      setUser({ name: res.fullName });
+      setIsAuthenticated(true);
+    } finally {
+      setLoading(false); 
+    }
   };
 
-  const signup = async (data: any) => {
-    const res = await authService.signup(data);
-    localStorage.setItem('token', res.token);
-    setUser({ name: res.fullName });
-    setIsAuthenticated(true);
+const signup = async (data: any) => {
+    setLoading(true); 
+    try {
+      const res = await authService.signup(data);
+      localStorage.setItem('token', res.token);
+      setUser({ name: res.fullName });
+      setIsAuthenticated(true);
+    } finally {
+      setLoading(false); 
+    }
   };
 
   const logout = () => {
