@@ -1,9 +1,8 @@
 import axios from 'axios';
-
-const API_BASE_URL = window.location.origin.replace('3000', '8080') + '/api';
+import { getApiBaseUrl } from './config';
 
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },

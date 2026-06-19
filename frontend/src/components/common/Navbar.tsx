@@ -42,12 +42,12 @@ const Navbar = () => {
 
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
-                  <Link
+                  {/* <Link
                     to="/dashboard"
                     className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-700"
                   >
                     <LayoutDashboard className="w-4 h-4" /> Dashboard
-                  </Link>
+                  </Link> */}
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-3 w-full px-4 py-2 hover:bg-gray-50 text-red-600"
