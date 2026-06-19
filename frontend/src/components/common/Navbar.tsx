@@ -5,16 +5,16 @@ import {
   LogOut,
   ChevronDown,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 const Navbar = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const navigate = useNavigate();
   const handleLogout = () => {
+    setIsDropdownOpen(false);
     logout();
-    navigate("/");
+    window.location.href = "/";
   };
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm">
