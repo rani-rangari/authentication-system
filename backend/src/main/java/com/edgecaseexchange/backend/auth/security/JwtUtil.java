@@ -15,28 +15,66 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.function.Function;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+
 @Component
 public class JwtUtil {
 
     private final SecretKey secretKey;
-    private final long expiration;
+    private final long accessTokenExpiration;
+    private final long refreshTokenExpiration;
+
+    // 🔥 EDGE CASE FIX: In-memory cache to store recently rotated tokens and their new response pairs
+    private final Map<String, CachedTokenPair> rotatedTokensCache = new ConcurrentHashMap<>();
+
+    // Nested helper class to store cached token response structures
+    public static class CachedTokenPair {
+        private final String accessToken;
+        private final String refreshToken;
+        private final long expiryTime;
+
+        public CachedTokenPair(String accessToken, String refreshToken, long gracePeriodMs) {
+            this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
+            this.expiryTime = System.currentTimeMillis() + gracePeriodMs;
+        }
+
+        public String getAccessToken() { return accessToken; }
+        public String getRefreshToken() { return refreshToken; }
+        public boolean isExpired() { return System.currentTimeMillis() > expiryTime; }
+    }
 
     public JwtUtil(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration}") long expiration
+            @Value("${jwt.expiration}") long expiration,
+            @Value("${jwt.refresh.expiration:604800000}") long refreshTokenExpiration // Defaults to 7 days if omitted
     ) {
-        // Ensure explicit UTF-8 encoding
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.expiration = expiration;
+        this.accessTokenExpiration = expiration;
+        this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public String generateToken(String email,  int tokenVersion) {
+
+    public String generateToken(String email, int tokenVersion) {
         return Jwts.builder()
                 .subject(email)
                 .claim("tokenVersion", tokenVersion)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(secretKey, Jwts.SIG.HS256) // Explicitly set algorithm
+                .expiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
+                .signWith(secretKey, Jwts.SIG.HS256)
+                .compact();
+    }
+
+
+    public String generateRefreshToken(String email, int tokenVersion) {
+        return Jwts.builder()
+                .subject(email)
+                .claim("tokenVersion", tokenVersion)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .signWith(secretKey, Jwts.SIG.HS256)
                 .compact();
     }
 
@@ -74,5 +112,25 @@ public class JwtUtil {
 
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
+    }
+
+
+    public void cacheRotatedToken(String oldRefreshToken, String newAccessToken, String newRefreshToken) {
+        // 5-second grace window for concurrent retries
+        long GRACE_PERIOD_MS = 5000;
+        rotatedTokensCache.put(oldRefreshToken, new CachedTokenPair(newAccessToken, newRefreshToken, GRACE_PERIOD_MS));
+        rotatedTokensCache.entrySet().removeIf(entry -> entry.getValue().isExpired());
+    }
+
+    public CachedTokenPair getValidGracePeriodToken(String oldRefreshToken) {
+        CachedTokenPair cachedPair = rotatedTokensCache.get(oldRefreshToken);
+        if (cachedPair != null) {
+            if (!cachedPair.isExpired()) {
+                return cachedPair;
+            } else {
+                rotatedTokensCache.remove(oldRefreshToken);
+            }
+        }
+        return null;
     }
 }

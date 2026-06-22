@@ -5,9 +5,13 @@ import com.edgecaseexchange.backend.auth.dto.LoginRequest;
 import com.edgecaseexchange.backend.auth.dto.SignupRequest;
 import com.edgecaseexchange.backend.auth.service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,25 +24,36 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-        return authService.login(request);
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/signup")
-    public AuthResponse signup(@Valid @RequestBody SignupRequest request) {
-        return authService.signup(request);
+    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
+        AuthResponse response = authService.signup(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    //  LOGOUT
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(Authentication authentication) {
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        AuthResponse response = authService.refreshSession(refreshToken);
+        return ResponseEntity.ok(response);
+    }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(Authentication authentication) {
         if (authentication != null) {
             String email = authentication.getName();
             authService.logout(email);
         }
 
-        return ResponseEntity.ok().build();
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Logged out successfully");
+        return ResponseEntity.ok(response);
     }
 }
+
+
 
