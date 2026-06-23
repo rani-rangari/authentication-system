@@ -10,6 +10,7 @@ interface AuthContextType {
   loading: boolean;
 }
 
+
 export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -23,6 +24,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(true);
     }
     setLoading(false);
+  }, []);
+  
+  useEffect(() => {
+    const handleCrossTabAuth = (event: StorageEvent) => {
+      // The storage event only fires across OTHER tabs when localStorage is mutated
+      if (event.key === 'token') {
+        if (!event.newValue) {
+          // Token was cleared elsewhere (e.g., Logout in Tab A)
+          setIsAuthenticated(false);
+          setUser(null);
+        } else {
+          // Token was updated/set elsewhere (e.g., Login in Tab A)
+          setIsAuthenticated(true);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleCrossTabAuth);
+    return () => window.removeEventListener('storage', handleCrossTabAuth);
   }, []);
   
   const login = async (data: any) => {
