@@ -39,10 +39,8 @@ public class AuthService {
 
         userRepository.save(user);
 
-        String accessToken = jwtUtil.generateToken(user.getEmail(), user.getTokenVersion());
-
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getTokenVersion());
-
+        String accessToken = jwtUtil.generateToken(user.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         return new AuthResponse(true, "Signup successful", user.getEmail(), accessToken, refreshToken, user.getFullName());
     }
@@ -55,59 +53,31 @@ public class AuthService {
             throw new AuthException("Invalid email or password");
         }
 
-        String accessToken = jwtUtil.generateToken(user.getEmail(), user.getTokenVersion());
-
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getTokenVersion());
+        String accessToken = jwtUtil.generateToken(user.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         return new AuthResponse(true, "Login successful", user.getEmail(), accessToken, refreshToken, user.getFullName());
     }
 
-
     public AuthResponse refreshSession(String oldRefreshToken) {
-
-        JwtUtil.CachedTokenPair gracePeriodPair = jwtUtil.getValidGracePeriodToken(oldRefreshToken);
-        if (gracePeriodPair != null) {
-
-            String email = jwtUtil.extractEmail(gracePeriodPair.getAccessToken());
-            return new AuthResponse(true, "Session synchronized (Grace Period)", email, gracePeriodPair.getAccessToken(), gracePeriodPair.getRefreshToken(), null);
-        }
-
         String email = jwtUtil.extractEmail(oldRefreshToken);
-        Integer tokenVersionFromToken = jwtUtil.extractTokenVersion(oldRefreshToken);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
 
-        if (!jwtUtil.isTokenValid(oldRefreshToken, user.getEmail()) || !tokenVersionFromToken.equals(user.getTokenVersion())) {
-
-            user.incrementTokenVersion();
-            userRepository.save(user);
-            throw new AuthException("Security Alert: Refresh token has been re-used. All active sessions invalidated.");
+        if (!jwtUtil.isTokenValid(oldRefreshToken, user.getEmail())) {
+            throw new AuthException("Invalid or expired refresh token");
         }
 
-
-        user.incrementTokenVersion();
-        userRepository.save(user);
-
-
-        String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getTokenVersion());
-        String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getTokenVersion());
-
-
-        jwtUtil.cacheRotatedToken(oldRefreshToken, newAccessToken, newRefreshToken);
+        String newAccessToken = jwtUtil.generateToken(user.getEmail());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         return new AuthResponse(true, "Token refreshed successfully", user.getEmail(), newAccessToken, newRefreshToken, user.getFullName());
     }
 
     public void logout(String email) {
-        User user = userRepository.findByEmail(email)
+        userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        user.incrementTokenVersion();
-        userRepository.save(user);
     }
 }
-
-
-
