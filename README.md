@@ -1,63 +1,76 @@
+<div align="center">
+
 # Authentication System
 
-Built with React (Frontend), Spring Boot (Backend) and Database (MySQL). This project demonstrates a complete user lifecycle: Signup, Login, Logout and Protected Routing
+Made by [Rani Rangari](https://linkedin.com/in/rani-rangari) • [EdgeCaseExchange](https://edgecaseexchange.com)
 
-## Technologies Used
-### Frontend
-- **Framework**: React.js with TypeScript
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide-React
-- **Routing**: React Router DOM
-- **State Management**: React Context API
+A React + Spring Boot + MySQL boilerplate implementing secure email/password login, registration, token refresh, and logout.
 
-### Backend
-- **Framework**: Spring Boot (Java)
-- **Security**: Spring Security & JWT (JSON Web Tokens)
-- **Database**: MySQL
+<br/>
 
-## Project Structure
-```text
-/root
-├── /frontend      # React source code
-└── /backend       # Spring Boot source code
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?style=flat&logo=springboot&logoColor=white)
+![React](https://img.shields.io/badge/React-18%2B-20232A?style=flat&logo=react&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?style=flat&logo=mysql&logoColor=white)
+
+</div>
+
+---
+
+## Getting Started
+
+This is a full-stack application. To run it locally, you can choose between **Docker** (recommended for instant setup) or **Manual Setup**.
+
+### 🐳 Option 1: Docker Quickstart (Recommended)
+
+Spin up the entire full-stack ecosystem with a single command. 
+
+1. Ensure your backend configuration profile is set to Docker in `backend/src/main/resources/application.properties`:
+
+```properties
+   spring.profiles.active=docker
 ```
 
-### ⚙️ How to Run Locally
+2. Launch the containerized stack:
 
-#### Prerequisites
-Before starting, ensure you have the following installed:
-* **Node.js**: v18 or higher
-* **Java**: JDK 17 or higher
-* **Database**: [MySQL]
+```bash
+   docker-compose up --build -d
+```
 
-### Backend Setup
+---
 
-- Navigate to `/backend`.
-- Configure your database credentials in `application.properties`.
-- Run the application:
-  ```bash
-  ./mvnw spring-boot:run
-  ```
+### 💻 Option 2: Manual Local Setup
 
-### Frontend Setup
+If running bare-metal, ensure you have **Node.js (v18+)**, **Java (JDK 21+)**, and an active **MySQL** server instance running locally.
 
-- Navigate to `/frontend`.
-- Install dependencies:
-  ```bash
-  npm install
-  ```
-- Start the development server:
-  ```bash
-  npm run dev
-  ```
+### 1. Configure Environment Profiles
+Open `backend/src/main/resources/application.properties`, activate the local profile, and append your database and JWT credentials:
 
-## Key Features
+```properties
+spring.profiles.active=local
 
-- **JWT Authentication**: Secure stateless token handling.
-- **Form Validation**: Robust client-side validation using custom utilities.
-- **Protected Routes**: Ensuring only authorized users reach the /dashboard.
-- **Responsive UI**: Mobile-first design using Tailwind CSS.
+# MySQL Configuration
+spring.datasource.url=jdbc:mysql://localhost:3306/your_database_name
+spring.datasource.username=your_db_user
+spring.datasource.password=your_db_password
 
-## License
+# JWT Security Configuration
+jwt.secret=your_super_secret_64_character_random_string
+jwt.expiration=86400000
+```
 
-This project is open-source and available under the MIT License.
+### 2. Spin Up Backend Service
+Open a terminal window and launch the Spring Boot engine:
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+### 3. Initialize Frontend Client
+Open a separate terminal window, install your project dependencies, and boot up the Vite development server:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
