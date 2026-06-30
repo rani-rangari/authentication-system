@@ -74,3 +74,11 @@ cd frontend
 npm install
 npm run dev
 ```
+
+---
+
+## 🚀 Want to Upgrade?
+
+Get **Google, GitHub, & Magic Link** sign-in pre-configured for your architecture.
+
+[Upgrade to Premium Authentication →](https://edgecaseexchange.com/premium-authentication)
