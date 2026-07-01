@@ -77,8 +77,8 @@ npm run dev
 
 ---
 
-## 🚀 Want to Upgrade?
+## 🚀 Need social logins?
 
-Get **Google, GitHub, & Magic Link** sign-in pre-configured for your architecture.
+Get **Google, GitHub, & Magic Link** sign-in ready to go.
 
-[Upgrade to Premium Authentication →](https://edgecaseexchange.com/premium-authentication)
+[Join the Waitlist →](https://edgecaseexchange.com/premium-authentication)
